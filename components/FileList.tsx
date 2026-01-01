@@ -1,14 +1,23 @@
 import React from 'react';
-import { Sparkles, Folder } from 'lucide-react';
-import { FileSystemFileHandle } from '../types';
+import { Sparkles, Folder, FolderOpen } from 'lucide-react';
+import { FileSystemFileHandle, FileSystemDirectoryHandle } from '../types';
 import { FileIcon } from './FileIcon';
 
 interface FileListProps {
   files: FileSystemFileHandle[];
   isDone: boolean;
+  rootHandle: FileSystemDirectoryHandle | null;
+  isProcessing: boolean;
+  onOpenDirectory: () => void;
 }
 
-export const FileList: React.FC<FileListProps> = ({ files, isDone }) => {
+export const FileList: React.FC<FileListProps> = ({ 
+  files, 
+  isDone, 
+  rootHandle, 
+  isProcessing, 
+  onOpenDirectory 
+}) => {
   return (
     <section className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
       <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
@@ -34,7 +43,7 @@ export const FileList: React.FC<FileListProps> = ({ files, isDone }) => {
               <>
                 <Folder className="w-12 h-12 mb-3 opacity-50" />
                 <p>Nenhum arquivo solto encontrado.</p>
-                <p className="text-sm opacity-70">Abra uma pasta com arquivos para começar.</p>
+                <p className="text-sm opacity-70">Abra uma pasta para começar.</p>
               </>
             )}
           </div>
@@ -46,6 +55,18 @@ export const FileList: React.FC<FileListProps> = ({ files, isDone }) => {
             </div>
           ))
         )}
+      </div>
+
+      {/* Footer Action */}
+      <div className="p-4 border-t border-slate-100 bg-white shrink-0">
+        <button
+          onClick={onOpenDirectory}
+          disabled={isProcessing}
+          className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-3 rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm shadow-sm"
+        >
+          <FolderOpen className="w-4 h-4" />
+          {rootHandle ? 'Trocar Pasta Selecionada' : 'Abrir Pasta Local'}
+        </button>
       </div>
     </section>
   );

@@ -28,15 +28,17 @@ const App: React.FC = () => {
       <Header 
         rootHandle={rootHandle} 
         isProcessing={isProcessing} 
-        onOpenDirectory={openDirectory} 
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
         
-        {/* Left Column: Current State */}
+        {/* Left Column: Current State & Open Action */}
         <FileList 
           files={files} 
-          isDone={isDone} 
+          isDone={isDone}
+          rootHandle={rootHandle}
+          isProcessing={isProcessing}
+          onOpenDirectory={openDirectory}
         />
 
         {/* Right Column: Preview / Action */}
