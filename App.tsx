@@ -3,6 +3,7 @@ import { FolderOpen, Sparkles, Folder, ArrowRight, CheckCircle, RefreshCw, Alert
 import { FileSystemDirectoryHandle, FileSystemFileHandle, CategorizedFiles, Category } from './types';
 import { categorizeFile, getCategoryColor } from './utils/fileUtils';
 import { FileIcon } from './components/FileIcon';
+import { Logo } from './components/Logo';
 
 const App: React.FC = () => {
   const [rootHandle, setRootHandle] = useState<FileSystemDirectoryHandle | null>(null);
@@ -160,16 +161,13 @@ const App: React.FC = () => {
       {/* --- Header --- */}
       <header className="bg-white border-b border-slate-200 shadow-sm z-10 shrink-0">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🧺</span>
-            <h1 className="text-xl font-bold tracking-tight text-slate-800">Cestou</h1>
-          </div>
+          <Logo />
           
           <div className="flex items-center gap-4">
             {rootHandle && (
-              <div className="hidden md:flex items-center text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-                <Folder className="w-4 h-4 mr-2" />
-                <span className="truncate max-w-[200px]">{rootHandle.name}</span>
+              <div className="hidden md:flex items-center text-sm text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                <Folder className="w-4 h-4 mr-2 text-indigo-500" />
+                <span className="truncate max-w-[200px] font-medium">{rootHandle.name}</span>
               </div>
             )}
             <button
