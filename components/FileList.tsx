@@ -9,6 +9,8 @@ interface FileListProps {
   rootHandle: FileSystemDirectoryHandle | null;
   isProcessing: boolean;
   onOpenDirectory: () => void;
+  selectedFile: FileSystemFileHandle | null;
+  onSelectFile: (file: FileSystemFileHandle) => void;
 }
 
 export const FileList: React.FC<FileListProps> = ({ 
@@ -16,7 +18,9 @@ export const FileList: React.FC<FileListProps> = ({
   isDone, 
   rootHandle, 
   isProcessing, 
-  onOpenDirectory 
+  onOpenDirectory,
+  selectedFile,
+  onSelectFile
 }) => {
   return (
     <section className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
@@ -61,12 +65,27 @@ export const FileList: React.FC<FileListProps> = ({
             )}
           </div>
         ) : (
-          files.map((file, idx) => (
-            <div key={idx} className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg group transition-colors text-sm border border-transparent hover:border-slate-100">
-              <FileIcon filename={file.name} className="w-5 h-5 shrink-0" />
-              <span className="truncate text-slate-600 group-hover:text-slate-900">{file.name}</span>
-            </div>
-          ))
+          files.map((file, idx) => {
+            const isSelected = selectedFile?.name === file.name;
+            return (
+              <div 
+                key={idx} 
+                onClick={() => onSelectFile(file)}
+                className={`
+                  flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all text-sm border 
+                  ${isSelected 
+                    ? 'bg-indigo-50 border-indigo-200 shadow-sm' 
+                    : 'border-transparent hover:bg-slate-50 hover:border-slate-100'
+                  }
+                `}
+              >
+                <FileIcon filename={file.name} className={`w-5 h-5 shrink-0 ${isSelected ? 'text-indigo-600' : ''}`} />
+                <span className={`truncate ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-600'}`}>
+                  {file.name}
+                </span>
+              </div>
+            );
+          })
         )}
       </div>
 

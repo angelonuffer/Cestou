@@ -3,6 +3,7 @@ import { useFileOrganizer } from './hooks/useFileOrganizer';
 import { Header } from './components/Header';
 import { FileList } from './components/FileList';
 import { OrganizerPreview } from './components/OrganizerPreview';
+import { FilePreview } from './components/FilePreview';
 import { AccessErrorModal } from './components/AccessErrorModal';
 import { MobileWarning } from './components/MobileWarning';
 
@@ -19,7 +20,9 @@ const App: React.FC = () => {
     setAccessError,
     isBlobUrl,
     openDirectory,
-    executeOrganization
+    executeOrganization,
+    selectedFile,
+    handleSelectFile
   } = useFileOrganizer();
 
   return (
@@ -27,18 +30,20 @@ const App: React.FC = () => {
       
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
+      <main className="flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
         
-        {/* Left Column: Current State & Open Action */}
+        {/* Left Column: Current State */}
         <FileList 
           files={files} 
           isDone={isDone}
           rootHandle={rootHandle}
           isProcessing={isProcessing}
           onOpenDirectory={openDirectory}
+          selectedFile={selectedFile}
+          onSelectFile={handleSelectFile}
         />
 
-        {/* Right Column: Preview / Action */}
+        {/* Middle Column: Organization Action */}
         <OrganizerPreview 
           rootHandle={rootHandle}
           filesCount={files.length}
@@ -48,6 +53,11 @@ const App: React.FC = () => {
           isDone={isDone}
           statusMessage={statusMessage}
           onExecute={executeOrganization}
+        />
+
+        {/* Right Column: File Preview */}
+        <FilePreview 
+          selectedFile={selectedFile} 
         />
 
       </main>

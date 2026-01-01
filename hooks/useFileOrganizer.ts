@@ -11,6 +11,7 @@ export const useFileOrganizer = () => {
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [isDone, setIsDone] = useState(false);
   const [accessError, setAccessError] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<FileSystemFileHandle | null>(null);
 
   // Check if running in a blob environment
   const isBlobUrl = typeof window !== 'undefined' && window.location.protocol === 'blob:';
@@ -26,6 +27,7 @@ export const useFileOrganizer = () => {
 
     setIsProcessing(true);
     setStatusMessage("Lendo arquivos...");
+    setSelectedFile(null); // Reset selection on new scan
 
     try {
       for await (const entry of handle.values()) {
@@ -85,6 +87,7 @@ export const useFileOrganizer = () => {
     setIsProcessing(true);
     setIsDone(false);
     setProgress(0);
+    setSelectedFile(null);
     
     const totalFiles = files.length;
     let processedCount = 0;
@@ -132,6 +135,10 @@ export const useFileOrganizer = () => {
     }
   };
 
+  const handleSelectFile = (file: FileSystemFileHandle) => {
+    setSelectedFile(file);
+  };
+
   return {
     rootHandle,
     files,
@@ -144,6 +151,8 @@ export const useFileOrganizer = () => {
     setAccessError,
     isBlobUrl,
     openDirectory,
-    executeOrganization
+    executeOrganization,
+    selectedFile,
+    handleSelectFile
   };
 };
