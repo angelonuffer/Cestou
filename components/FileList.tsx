@@ -1,10 +1,11 @@
 import React from 'react';
-import { Sparkles, Folder, FolderOpen } from 'lucide-react';
+import { Sparkles, Folder, FolderOpen, File as FileIconGeneric } from 'lucide-react';
 import { FileSystemFileHandle, FileSystemDirectoryHandle } from '../types';
 import { FileIcon } from './FileIcon';
 
 interface FileListProps {
   files: FileSystemFileHandle[];
+  folders?: string[]; // New prop for existing folders
   isDone: boolean;
   rootHandle: FileSystemDirectoryHandle | null;
   isProcessing: boolean;
@@ -15,6 +16,7 @@ interface FileListProps {
 
 export const FileList: React.FC<FileListProps> = ({ 
   files, 
+  folders = [],
   isDone, 
   rootHandle, 
   isProcessing, 
@@ -42,13 +44,20 @@ export const FileList: React.FC<FileListProps> = ({
             </>
           )}
         </div>
-        <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-md shrink-0">
-          {files.length} itens
-        </span>
+        <div className="flex gap-2">
+           {folders.length > 0 && (
+             <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-md shrink-0 border border-amber-100">
+               {folders.length} pastas
+             </span>
+           )}
+           <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-md shrink-0 border border-slate-200">
+             {files.length} arqs
+           </span>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
-        {files.length === 0 ? (
+        {files.length === 0 && folders.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
             {isDone ? (
               <>
@@ -59,33 +68,57 @@ export const FileList: React.FC<FileListProps> = ({
             ) : (
               <>
                 <Folder className="w-12 h-12 mb-3 opacity-50" />
-                <p>Nenhum arquivo solto encontrado.</p>
+                <p>Nenhum arquivo encontrado.</p>
                 <p className="text-sm opacity-70">Abra uma pasta para começar.</p>
               </>
             )}
           </div>
         ) : (
-          files.map((file, idx) => {
-            const isSelected = selectedFile?.name === file.name;
-            return (
-              <div 
-                key={idx} 
-                onClick={() => onSelectFile(file)}
-                className={`
-                  flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all text-sm border 
-                  ${isSelected 
-                    ? 'bg-indigo-50 border-indigo-200 shadow-sm' 
-                    : 'border-transparent hover:bg-slate-50 hover:border-slate-100'
-                  }
-                `}
-              >
-                <FileIcon filename={file.name} className={`w-5 h-5 shrink-0 ${isSelected ? 'text-indigo-600' : ''}`} />
-                <span className={`truncate ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-600'}`}>
-                  {file.name}
-                </span>
+          <>
+            {/* Existing Folders Section */}
+            {folders.length > 0 && (
+              <div className="mb-2">
+                <p className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Subpastas Encontradas</p>
+                {folders.map((folderName, idx) => (
+                  <div 
+                    key={`folder-${idx}`}
+                    className="flex items-center gap-3 p-2 rounded-lg text-sm border border-transparent text-slate-500 opacity-75 hover:opacity-100 hover:bg-slate-50"
+                  >
+                    <Folder className="w-5 h-5 text-amber-400 fill-amber-100 shrink-0" />
+                    <span className="truncate">{folderName}</span>
+                  </div>
+                ))}
               </div>
-            );
-          })
+            )}
+
+            {/* Files Section */}
+            {files.length > 0 && (
+              <div>
+                 {folders.length > 0 && <p className="px-2 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-2">Arquivos Soltos</p>}
+                 {files.map((file, idx) => {
+                  const isSelected = selectedFile?.name === file.name;
+                  return (
+                    <div 
+                      key={idx} 
+                      onClick={() => onSelectFile(file)}
+                      className={`
+                        flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-all text-sm border 
+                        ${isSelected 
+                          ? 'bg-indigo-50 border-indigo-200 shadow-sm' 
+                          : 'border-transparent hover:bg-slate-50 hover:border-slate-100'
+                        }
+                      `}
+                    >
+                      <FileIcon filename={file.name} className={`w-5 h-5 shrink-0 ${isSelected ? 'text-indigo-600' : ''}`} />
+                      <span className={`truncate ${isSelected ? 'text-indigo-900 font-medium' : 'text-slate-600'}`}>
+                        {file.name}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -11,6 +11,7 @@ const App: React.FC = () => {
   const {
     rootHandle,
     files,
+    folders,
     categorizedFiles,
     isProcessing,
     isAiProcessing,
@@ -37,6 +38,7 @@ const App: React.FC = () => {
         {/* Left Column: Current State */}
         <FileList 
           files={files} 
+          folders={folders}
           isDone={isDone}
           rootHandle={rootHandle}
           isProcessing={isProcessing}

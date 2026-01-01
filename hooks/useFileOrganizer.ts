@@ -6,6 +6,7 @@ import { analyzeFilesWithGemini } from '../services/aiService';
 export const useFileOrganizer = () => {
   const [rootHandle, setRootHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [files, setFiles] = useState<FileSystemFileHandle[]>([]);
+  const [folders, setFolders] = useState<string[]>([]);
   const [categorizedFiles, setCategorizedFiles] = useState<CategorizedFiles>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [isAiProcessing, setIsAiProcessing] = useState(false);
@@ -20,6 +21,8 @@ export const useFileOrganizer = () => {
 
   const scanDirectory = async (handle: FileSystemDirectoryHandle) => {
     const fileList: FileSystemFileHandle[] = [];
+    const folderList: string[] = [];
+    
     // Default categorizer initialization
     const grouped: CategorizedFiles = {
       'Imagens': [],
@@ -29,7 +32,7 @@ export const useFileOrganizer = () => {
     };
 
     setIsProcessing(true);
-    setStatusMessage("Lendo arquivos...");
+    setStatusMessage("Lendo arquivos e pastas...");
     setSelectedFile(null); // Reset selection on new scan
 
     try {
@@ -39,12 +42,16 @@ export const useFileOrganizer = () => {
           fileList.push(fileEntry);
           const category = categorizeFile(fileEntry.name);
           grouped[category].push(fileEntry);
+        } else if (entry.kind === 'directory') {
+          folderList.push(entry.name);
         }
       }
       
       fileList.sort((a, b) => a.name.localeCompare(b.name));
+      folderList.sort((a, b) => a.localeCompare(b));
       
       setFiles(fileList);
+      setFolders(folderList);
       setCategorizedFiles(grouped);
       
     } catch (error) {
@@ -88,11 +95,12 @@ export const useFileOrganizer = () => {
     if (files.length === 0) return;
 
     setIsAiProcessing(true);
-    setStatusMessage("A IA do Gemini está analisando seus arquivos...");
+    setStatusMessage("A IA do Gemini está analisando seus arquivos e pastas...");
     
     try {
       const filenames = files.map(f => f.name);
-      const aiResults = await analyzeFilesWithGemini(filenames);
+      // Pass both filenames and existing folders to the AI service
+      const aiResults = await analyzeFilesWithGemini(filenames, folders);
       
       const newCategorization: CategorizedFiles = {};
       
@@ -149,7 +157,8 @@ export const useFileOrganizer = () => {
         const filesInCategory = categorizedFiles[category];
         if (filesInCategory.length === 0) continue;
 
-        setStatusMessage(`Criando pasta ${category}...`);
+        setStatusMessage(`Acessando pasta ${category}...`);
+        // This will allow writing to existing folders or create new ones if they don't exist
         const dirHandle = await rootHandle.getDirectoryHandle(category, { create: true });
 
         for (const fileHandle of filesInCategory) {
@@ -192,6 +201,7 @@ export const useFileOrganizer = () => {
   return {
     rootHandle,
     files,
+    folders, // Export folders
     categorizedFiles,
     isProcessing,
     isAiProcessing,
