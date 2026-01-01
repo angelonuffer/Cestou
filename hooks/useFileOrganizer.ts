@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { FileSystemDirectoryHandle, FileSystemFileHandle, CategorizedFiles, Category } from '../types';
 import { categorizeFile } from '../utils/fileUtils';
+import { analyzeFilesWithGemini } from '../services/aiService';
 
 export const useFileOrganizer = () => {
   const [rootHandle, setRootHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [files, setFiles] = useState<FileSystemFileHandle[]>([]);
   const [categorizedFiles, setCategorizedFiles] = useState<CategorizedFiles>({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [isDone, setIsDone] = useState(false);
@@ -18,6 +20,7 @@ export const useFileOrganizer = () => {
 
   const scanDirectory = async (handle: FileSystemDirectoryHandle) => {
     const fileList: FileSystemFileHandle[] = [];
+    // Default categorizer initialization
     const grouped: CategorizedFiles = {
       'Imagens': [],
       'Documentos': [],
@@ -78,6 +81,53 @@ export const useFileOrganizer = () => {
       
       console.error("Erro ao abrir pasta:", err);
       setStatusMessage("Erro ao tentar abrir a pasta.");
+    }
+  };
+
+  const handleSmartOrganization = async () => {
+    if (files.length === 0) return;
+
+    setIsAiProcessing(true);
+    setStatusMessage("A IA do Gemini está analisando seus arquivos...");
+    
+    try {
+      const filenames = files.map(f => f.name);
+      const aiResults = await analyzeFilesWithGemini(filenames);
+      
+      const newCategorization: CategorizedFiles = {};
+      
+      // Initialize map for quick lookup
+      const fileMap = new Map(files.map(f => [f.name, f]));
+      const handledFiles = new Set<string>();
+
+      aiResults.forEach(cat => {
+        newCategorization[cat.categoryName] = [];
+        cat.files.forEach(fname => {
+          const fileHandle = fileMap.get(fname);
+          if (fileHandle) {
+            newCategorization[cat.categoryName].push(fileHandle);
+            handledFiles.add(fname);
+          }
+        });
+      });
+
+      // Handle leftovers that AI might have missed (safety net)
+      files.forEach(f => {
+        if (!handledFiles.has(f.name)) {
+          if (!newCategorization['Outros']) newCategorization['Outros'] = [];
+          newCategorization['Outros'].push(f);
+        }
+      });
+
+      setCategorizedFiles(newCategorization);
+      setStatusMessage("Organização inteligente pronta!");
+    } catch (error) {
+      console.error("AI Error:", error);
+      setStatusMessage("Erro na análise inteligente. Mantendo organização padrão.");
+    } finally {
+      setIsAiProcessing(false);
+      // Clear status message after 3 seconds
+      setTimeout(() => setStatusMessage(""), 3000);
     }
   };
 
@@ -144,6 +194,7 @@ export const useFileOrganizer = () => {
     files,
     categorizedFiles,
     isProcessing,
+    isAiProcessing,
     progress,
     statusMessage,
     isDone,
@@ -151,6 +202,7 @@ export const useFileOrganizer = () => {
     setAccessError,
     isBlobUrl,
     openDirectory,
+    handleSmartOrganization,
     executeOrganization,
     selectedFile,
     handleSelectFile

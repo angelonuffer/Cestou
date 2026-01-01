@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, CheckCircle, RefreshCw, Sparkles, Folder, ChevronRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, CheckCircle, RefreshCw, Sparkles, Folder, ChevronRight, ChevronDown, Wand2 } from 'lucide-react';
 import { FileSystemDirectoryHandle, CategorizedFiles, Category, FileSystemFileHandle } from '../types';
 import { getCategoryColor } from '../utils/fileUtils';
 
@@ -8,10 +8,12 @@ interface OrganizerPreviewProps {
   filesCount: number;
   categorizedFiles: CategorizedFiles;
   isProcessing: boolean;
+  isAiProcessing?: boolean;
   progress: number;
   isDone: boolean;
   statusMessage: string;
   onExecute: () => void;
+  onSmartOrganize?: () => void;
   selectedFile: FileSystemFileHandle | null;
   onSelectFile: (file: FileSystemFileHandle) => void;
 }
@@ -21,15 +23,15 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
   filesCount,
   categorizedFiles,
   isProcessing,
+  isAiProcessing = false,
   progress,
   isDone,
   statusMessage,
   onExecute,
+  onSmartOrganize,
   selectedFile,
   onSelectFile
 }) => {
-  // Estado para controlar quais categorias estão expandidas.
-  // Inicia vazio (new Set()) para que todas comecem recolhidas.
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
   const toggleCategory = (category: string) => {
@@ -51,7 +53,21 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
           <div className="w-2 h-6 bg-indigo-500 rounded-full"></div>
           <h2 className="font-semibold text-slate-700">Sugestão de Organização</h2>
         </div>
-        {isProcessing && <span className="text-xs text-indigo-600 animate-pulse font-medium">{Math.round(progress)}%</span>}
+        
+        {rootHandle && filesCount > 0 && !isDone && onSmartOrganize && (
+          <button
+            onClick={onSmartOrganize}
+            disabled={isAiProcessing || isProcessing}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs font-semibold rounded-full shadow-sm transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isAiProcessing ? (
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Wand2 className="w-3.5 h-3.5" />
+            )}
+            {isAiProcessing ? 'Pensando...' : 'Organizar com IA'}
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
@@ -59,6 +75,16 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
           <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center opacity-60">
             <ArrowRight className="w-12 h-12 mb-3" />
             <p>A prévia aparecerá aqui</p>
+          </div>
+        ) : isAiProcessing ? (
+          <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+             <div className="relative mb-4">
+                <div className="w-12 h-12 rounded-full border-4 border-slate-100"></div>
+                <div className="absolute top-0 left-0 w-12 h-12 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
+                <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-indigo-500" />
+             </div>
+             <p className="text-slate-600 font-medium">O Gemini está analisando seus arquivos...</p>
+             <p className="text-xs text-slate-400 mt-2">Identificando contextos e categorias inteligentes</p>
           </div>
         ) : filesCount === 0 && !isDone ? (
            <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
@@ -154,11 +180,11 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
 
           <button
             onClick={onExecute}
-            disabled={!rootHandle || filesCount === 0 || isProcessing}
+            disabled={!rootHandle || filesCount === 0 || isProcessing || isAiProcessing}
             className={`
               flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white shadow-lg shadow-indigo-200
               transition-all transform hover:-translate-y-0.5 active:translate-y-0
-              ${!rootHandle || filesCount === 0 || isProcessing
+              ${!rootHandle || filesCount === 0 || isProcessing || isAiProcessing
                 ? 'bg-slate-300 cursor-not-allowed shadow-none text-slate-500' 
                 : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-300'
               }

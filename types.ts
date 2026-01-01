@@ -29,7 +29,8 @@ export interface FileSystemWritableFileStream extends WritableStream {
   close(): Promise<void>;
 }
 
-export type Category = 'Imagens' | 'Documentos' | 'Vídeos' | 'Outros';
+// Changed from union type to string to support dynamic AI categories
+export type Category = string;
 
 export interface CategorizedFiles {
   [key: string]: FileSystemFileHandle[];

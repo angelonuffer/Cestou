@@ -13,6 +13,7 @@ const App: React.FC = () => {
     files,
     categorizedFiles,
     isProcessing,
+    isAiProcessing,
     progress,
     statusMessage,
     isDone,
@@ -21,6 +22,7 @@ const App: React.FC = () => {
     isBlobUrl,
     openDirectory,
     executeOrganization,
+    handleSmartOrganization,
     selectedFile,
     handleSelectFile
   } = useFileOrganizer();
@@ -49,10 +51,12 @@ const App: React.FC = () => {
           filesCount={files.length}
           categorizedFiles={categorizedFiles}
           isProcessing={isProcessing}
+          isAiProcessing={isAiProcessing}
           progress={progress}
           isDone={isDone}
           statusMessage={statusMessage}
           onExecute={executeOrganization}
+          onSmartOrganize={handleSmartOrganization}
           selectedFile={selectedFile}
           onSelectFile={handleSelectFile}
         />
