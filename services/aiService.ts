@@ -15,8 +15,8 @@ export const analyzeFilesWithGemini = async (filenames: string[]): Promise<AICat
       Analyze them and group them into logical folders based on their content, context, extension, and name.
       
       Rules:
-      1. Create meaningful category names (e.g., "Financials", "Scripts", "Vacation Photos", "Installers").
-      2. If a file is ambiguous, put it in "Misc".
+      1. Create meaningful category names in Portuguese (Brazil). Examples: "Financeiro", "Projetos", "Fotos Pessoais", "Instaladores".
+      2. If a file is ambiguous, put it in "Outros".
       3. Do not leave any file uncategorized.
       
       Files to organize:
@@ -33,7 +33,7 @@ export const analyzeFilesWithGemini = async (filenames: string[]): Promise<AICat
                 properties: {
                   categoryName: {
                     type: Type.STRING,
-                    description: "The name of the folder/category",
+                    description: "The name of the folder/category in Portuguese",
                   },
                   files: {
                     type: Type.ARRAY,
