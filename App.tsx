@@ -25,10 +25,7 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-slate-50 text-slate-900 font-sans overflow-hidden">
       
-      <Header 
-        rootHandle={rootHandle} 
-        isProcessing={isProcessing} 
-      />
+      <Header />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
         

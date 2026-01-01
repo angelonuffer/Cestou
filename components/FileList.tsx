@@ -21,11 +21,24 @@ export const FileList: React.FC<FileListProps> = ({
   return (
     <section className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
       <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
-        <div className="flex items-center gap-2">
-          <div className="w-2 h-6 bg-slate-400 rounded-full"></div>
-          <h2 className="font-semibold text-slate-700">Arquivos na Raiz</h2>
+        <div className="flex items-center gap-2 overflow-hidden mr-2">
+          {rootHandle ? (
+            <>
+              <div className="bg-indigo-100 p-1.5 rounded-md shrink-0">
+                <FolderOpen className="w-4 h-4 text-indigo-600" />
+              </div>
+              <h2 className="font-semibold text-slate-700 truncate" title={rootHandle.name}>
+                {rootHandle.name}
+              </h2>
+            </>
+          ) : (
+            <>
+              <div className="w-2 h-6 bg-slate-400 rounded-full shrink-0"></div>
+              <h2 className="font-semibold text-slate-700">Arquivos</h2>
+            </>
+          )}
         </div>
-        <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-md">
+        <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-1 rounded-md shrink-0">
           {files.length} itens
         </span>
       </div>
