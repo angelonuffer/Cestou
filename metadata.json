@@ -1,0 +1,5 @@
+{
+  "name": "Cestou",
+  "description": "Um organizador de arquivos inteligente que categoriza e move arquivos automaticamente usando a File System Access API.",
+  "requestFramePermissions": []
+}
