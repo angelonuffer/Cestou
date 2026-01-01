@@ -1,5 +1,5 @@
-import React from 'react';
-import { ArrowRight, CheckCircle, RefreshCw, Sparkles, Folder } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, CheckCircle, RefreshCw, Sparkles, Folder, ChevronRight, ChevronDown } from 'lucide-react';
 import { FileSystemDirectoryHandle, CategorizedFiles, Category, FileSystemFileHandle } from '../types';
 import { getCategoryColor } from '../utils/fileUtils';
 
@@ -28,6 +28,22 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
   selectedFile,
   onSelectFile
 }) => {
+  // Estado para controlar quais categorias estão expandidas.
+  // Inicia vazio (new Set()) para que todas comecem recolhidas.
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <section className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full relative">
       <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
@@ -38,7 +54,7 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
         {isProcessing && <span className="text-xs text-indigo-600 animate-pulse font-medium">{Math.round(progress)}%</span>}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {!rootHandle ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center opacity-60">
             <ArrowRight className="w-12 h-12 mb-3" />
@@ -53,36 +69,49 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
           Object.entries(categorizedFiles).map(([category, catFiles]) => (
             catFiles.length > 0 && (
               <div key={category} className="group">
-                <div className="flex items-center gap-2 mb-2 sticky top-0 bg-white/95 backdrop-blur-sm py-1 z-10">
+                <button 
+                  onClick={() => toggleCategory(category)}
+                  className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors text-left group-focus:ring-2 ring-indigo-100 outline-none select-none"
+                >
+                  {expandedCategories.has(category) 
+                    ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                    : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                  }
+
                   <Folder className={`w-5 h-5 fill-current ${getCategoryColor(category as Category).split(' ')[0]}`} />
-                  <h3 className="font-semibold text-slate-800">{category}</h3>
-                  <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full ml-auto">
+                  
+                  <h3 className="font-semibold text-slate-800 text-sm flex-1">{category}</h3>
+                  
+                  <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full shrink-0">
                     {catFiles.length}
                   </span>
-                </div>
-                <div className={`rounded-lg border p-1 ${getCategoryColor(category as Category)} bg-opacity-30`}>
-                  <div className="bg-white/80 rounded-md divide-y divide-slate-100">
-                    {catFiles.map((file, idx) => {
-                      const isSelected = selectedFile?.name === file.name;
-                      return (
-                        <div 
-                          key={idx} 
-                          onClick={() => onSelectFile(file)}
-                          className={`
-                            flex items-center gap-3 p-2 text-sm px-3 cursor-pointer transition-colors
-                            ${isSelected 
-                              ? 'bg-indigo-100/80 text-indigo-900 font-medium' 
-                              : 'text-slate-600 hover:bg-slate-50'
-                            }
-                          `}
-                        >
-                           <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected ? 'bg-indigo-500' : 'bg-slate-300'}`}></div>
-                           <span className={`truncate ${isSelected ? 'opacity-100' : 'opacity-80'}`}>{file.name}</span>
-                        </div>
-                      );
-                    })}
+                </button>
+                
+                {expandedCategories.has(category) && (
+                  <div className={`mt-2 rounded-lg border p-1 ml-6 ${getCategoryColor(category as Category)} bg-opacity-30 animate-in slide-in-from-top-1 duration-200`}>
+                    <div className="bg-white/80 rounded-md divide-y divide-slate-100 max-h-[300px] overflow-y-auto">
+                      {catFiles.map((file, idx) => {
+                        const isSelected = selectedFile?.name === file.name;
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => onSelectFile(file)}
+                            className={`
+                              flex items-center gap-3 p-2 text-sm px-3 cursor-pointer transition-colors
+                              ${isSelected 
+                                ? 'bg-indigo-100/80 text-indigo-900 font-medium' 
+                                : 'text-slate-600 hover:bg-slate-50'
+                              }
+                            `}
+                          >
+                             <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected ? 'bg-indigo-500' : 'bg-slate-300'}`}></div>
+                             <span className={`truncate ${isSelected ? 'opacity-100' : 'opacity-80'}`}>{file.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )
           ))
