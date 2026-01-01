@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, CheckCircle, RefreshCw, Sparkles, Folder } from 'lucide-react';
-import { FileSystemDirectoryHandle, CategorizedFiles, Category } from '../types';
+import { FileSystemDirectoryHandle, CategorizedFiles, Category, FileSystemFileHandle } from '../types';
 import { getCategoryColor } from '../utils/fileUtils';
 
 interface OrganizerPreviewProps {
@@ -12,6 +12,8 @@ interface OrganizerPreviewProps {
   isDone: boolean;
   statusMessage: string;
   onExecute: () => void;
+  selectedFile: FileSystemFileHandle | null;
+  onSelectFile: (file: FileSystemFileHandle) => void;
 }
 
 export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
@@ -22,7 +24,9 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
   progress,
   isDone,
   statusMessage,
-  onExecute
+  onExecute,
+  selectedFile,
+  onSelectFile
 }) => {
   return (
     <section className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full relative">
@@ -58,12 +62,25 @@ export const OrganizerPreview: React.FC<OrganizerPreviewProps> = ({
                 </div>
                 <div className={`rounded-lg border p-1 ${getCategoryColor(category as Category)} bg-opacity-30`}>
                   <div className="bg-white/80 rounded-md divide-y divide-slate-100">
-                    {catFiles.map((file, idx) => (
-                      <div key={idx} className="flex items-center gap-3 p-2 text-sm text-slate-600 px-3">
-                         <div className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></div>
-                         <span className="truncate opacity-80">{file.name}</span>
-                      </div>
-                    ))}
+                    {catFiles.map((file, idx) => {
+                      const isSelected = selectedFile?.name === file.name;
+                      return (
+                        <div 
+                          key={idx} 
+                          onClick={() => onSelectFile(file)}
+                          className={`
+                            flex items-center gap-3 p-2 text-sm px-3 cursor-pointer transition-colors
+                            ${isSelected 
+                              ? 'bg-indigo-100/80 text-indigo-900 font-medium' 
+                              : 'text-slate-600 hover:bg-slate-50'
+                            }
+                          `}
+                        >
+                           <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSelected ? 'bg-indigo-500' : 'bg-slate-300'}`}></div>
+                           <span className={`truncate ${isSelected ? 'opacity-100' : 'opacity-80'}`}>{file.name}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

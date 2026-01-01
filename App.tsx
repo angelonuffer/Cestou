@@ -53,6 +53,8 @@ const App: React.FC = () => {
           isDone={isDone}
           statusMessage={statusMessage}
           onExecute={executeOrganization}
+          selectedFile={selectedFile}
+          onSelectFile={handleSelectFile}
         />
 
         {/* Right Column: File Preview */}
